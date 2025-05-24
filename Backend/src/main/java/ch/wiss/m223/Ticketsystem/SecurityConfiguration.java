@@ -9,15 +9,16 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import ch.wiss.m223.Ticketsystem.Security.AuthTokenFilter;
+import ch.wiss.m223.Ticketsystem.Security.AuthEntryPointJwt;
 import ch.wiss.m223.Ticketsystem.Service.UserDetailsServiceImpl;
 
 @Configuration
@@ -25,7 +26,9 @@ public class SecurityConfiguration {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
-    // @Autowired private AuthenticationEntryPoint unauthorizedHandler;
+
+    @Autowired
+    private AuthEntryPointJwt unauthorizedHandler;
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -50,25 +53,25 @@ public class SecurityConfiguration {
         return authConfig.getAuthenticationManager();
     }
 
-    private static final String[] EVERYONE = { "/public", "/api/auth/*", };
+    private static final String[] EVERYONE = { "/public", "/api/auth/**" };
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http)
-            throws Exception {
-        http.csrf(csrf -> csrf.disable()) // disable Cross-Site Request Forgery (CSRF) prevention
-                .cors(Customizer.withDefaults()) // configure CORS: Cross Origin Request Sharing
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(HttpMethod.POST, "/items").hasRole("ADMIN");
-                    auth.requestMatchers(EVERYONE).permitAll()
-                            .anyRequest().authenticated();
-                })
-                .formLogin(Customizer.withDefaults()) // für Login-Form im Browser
-                .httpBasic(Customizer.withDefaults()); // für CURL, Postman, Insomnia
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // WICHTIG
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(EVERYONE).permitAll()
+                .anyRequest().authenticated()
+            );
+
         http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(),
-                UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
+
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
