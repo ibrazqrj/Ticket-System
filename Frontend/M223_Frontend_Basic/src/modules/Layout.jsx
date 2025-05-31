@@ -3,9 +3,9 @@ import Navigation from "./Navigation";
 
 export default function Layout() {
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="layout-container">
       <Navigation />
-      <main style={{ flexGrow: 1, padding: "2rem" }}>
+      <main className="main-content">
         <Outlet />
       </main>
     </div>

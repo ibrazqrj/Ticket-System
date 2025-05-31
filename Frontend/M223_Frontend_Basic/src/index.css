@@ -65,3 +65,17 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Layout-Container sorgt für horizontale Anordnung */
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Main-Inhalt erscheint neben der Sidebar */
+.main-content {
+  margin-left: 250px; /* gleiche Breite wie nav */
+  padding: 2rem;
+  flex-grow: 1;
+  box-sizing: border-box;
+}

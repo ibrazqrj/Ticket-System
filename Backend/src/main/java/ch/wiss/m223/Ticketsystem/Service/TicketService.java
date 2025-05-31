@@ -42,4 +42,8 @@ public class TicketService {
     public Ticket updateTicket(Ticket ticket) {
         return ticketRepository.save(ticket);
     }
+
+    public void setTicketRepository(TicketRepository ticketRepository) {
+        this.ticketRepository = ticketRepository;
+    }
 }

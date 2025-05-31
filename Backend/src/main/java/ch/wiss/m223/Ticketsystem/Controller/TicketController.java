@@ -23,10 +23,14 @@ import ch.wiss.m223.Ticketsystem.dto.CreateTicketRequest;
 @RequestMapping("/api/tickets")
 public class TicketController {
 
-    @Autowired private TicketRepository ticketRepository;
-    @Autowired private ProjectRepository projectRepository;
-    @Autowired private UserService userService;
-    @Autowired private UserRepository userRepository;
+    @Autowired
+    private TicketRepository ticketRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -35,7 +39,7 @@ public class TicketController {
         User creator = userService.getUserByUsername(username);
 
         Project project = projectRepository.findById(request.getProjectId())
-            .orElseThrow(() -> new RuntimeException("Projekt nicht gefunden"));
+                .orElseThrow(() -> new RuntimeException("Projekt nicht gefunden"));
 
         Ticket ticket = new Ticket();
         ticket.setTitle(request.getTitle());
@@ -58,8 +62,8 @@ public class TicketController {
                 .anyMatch(role -> role.getName().name().equals("ROLE_ADMIN"));
 
         List<Ticket> tickets = isAdmin
-            ? ticketRepository.findAll()
-            : ticketRepository.findByCreator(user);
+                ? ticketRepository.findAll()
+                : ticketRepository.findByCreator(user);
 
         return ResponseEntity.ok(tickets);
     }
@@ -129,5 +133,22 @@ public class TicketController {
     public ResponseEntity<?> deleteTicket(@PathVariable Long id) {
         ticketRepository.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/assign")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> assignUserToTicket(@PathVariable Long id, @RequestBody Map<String, Long> body) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket nicht gefunden"));
+
+        Long userId = body.get("userId");
+        if (userId == null)
+            return ResponseEntity.badRequest().body("userId ist erforderlich");
+
+        User userToAssign = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Benutzer nicht gefunden"));
+
+        ticket.setAssignedAdmin(userToAssign);
+        return ResponseEntity.ok(ticketRepository.save(ticket));
     }
 }

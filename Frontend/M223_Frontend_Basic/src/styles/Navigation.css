@@ -1,15 +1,48 @@
-nav ul {
-  display: flex;
+nav {
+  width: 250px;
+  height: 100vh;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  padding: 20px;
+  box-sizing: border-box;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  font-family: sans-serif;
+}
 
-  & > li {
-    list-style: none;
-    border: 1px solid grey;
-    border-radius: 5px;
-    margin: 2px;
-    & > a {
-      font-size: 1.3em;
-      font-weight: bold;
-      padding: 15px 20px;
-    }
-  }
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin-bottom: 10px;
+}
+
+nav ul li a {
+  display: block;
+  text-decoration: none;
+  padding: 10px 15px;
+  color: #333;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+
+nav ul li a:hover,
+nav ul li a.active {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+nav .section-title {
+  margin-top: 20px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+  font-size: 0.9em;
+  text-transform: uppercase;
 }

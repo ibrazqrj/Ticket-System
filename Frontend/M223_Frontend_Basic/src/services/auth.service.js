@@ -30,11 +30,21 @@ const getCurrentUser = () => {
     );
 };
 
+const getAllUsers = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  return axios.get("http://localhost:8080/api/users", {
+    headers: {
+      Authorization: "Bearer " + user.token,
+    },
+  });
+};
+
 const AuthService = {
     register,
     login,
     logout,
     getCurrentUser,
+    getAllUsers,
 }
 
 export default AuthService;

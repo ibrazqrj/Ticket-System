@@ -58,4 +58,17 @@ public class UserService {
         .orElseThrow(() -> new RuntimeException("User not found: " + username));
 }
 
+    // Setter methods for testing purposes
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public void setRoleRepository(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
+
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
 }

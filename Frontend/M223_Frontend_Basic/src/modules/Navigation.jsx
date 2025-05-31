@@ -19,6 +19,7 @@ export default function Navigation() {
             <li><Link to="/dashboard">Dashboard</Link></li>
             <li><Link to="/tickets">Tickets</Link></li>
             <li><Link to="/projects">Projekte</Link></li>
+            <li><Link to="/tickets/new">+ Ticket</Link></li>
             {user.roles?.includes("ADMIN") && (
               <li><Link to="/admin">Admin-Bereich</Link></li>
             )}
