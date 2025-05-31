@@ -394,7 +394,7 @@ public class TicketServiceTest {
 ### ✅ Manuelle Tests (Postman)
 
 #### `Register & Login`
-![[Manuelles Testing.mp4]]
+[!\[\[Manuelles Testing.mp4\]\]](https://streamable.com/2m09t0)
 ---
 ## 🛡 Sicherheitskonzept
 
