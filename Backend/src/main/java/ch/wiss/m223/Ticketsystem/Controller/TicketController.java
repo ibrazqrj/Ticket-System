@@ -25,39 +25,49 @@ public class TicketController {
 
     @Autowired
     private TicketRepository ticketRepository;
+
     @Autowired
     private ProjectRepository projectRepository;
+
     @Autowired
     private UserService userService;
+
     @Autowired
     private UserRepository userRepository;
 
+    // 🔸 Neues Ticket erstellen
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> createTicket(@RequestBody CreateTicketRequest request) {
+        // Aktuell eingeloggten Benutzer ermitteln
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User creator = userService.getUserByUsername(username);
 
+        // Projekt nach ID suchen
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new RuntimeException("Projekt nicht gefunden"));
 
+        // Neues Ticket erstellen
         Ticket ticket = new Ticket();
         ticket.setTitle(request.getTitle());
         ticket.setDescription(request.getDescription());
-        ticket.setCreator(creator);
+        ticket.setCreator(creator); // Ersteller setzen
         ticket.setProject(project);
-        ticket.setStatus(TicketStatus.OPEN);
+        ticket.setStatus(TicketStatus.OPEN); // Standardstatus
 
+        // Ticket speichern und zurückgeben
         Ticket savedTicket = ticketRepository.save(ticket);
         return ResponseEntity.ok(savedTicket);
     }
 
+    // 🔸 Alle Tickets holen (Admin: alle, User: nur eigene)
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> getAllTickets() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByUsername(username);
 
+        // Prüfen, ob Benutzer ein Admin ist
         boolean isAdmin = user.getRoles().stream()
                 .anyMatch(role -> role.getName().name().equals("ROLE_ADMIN"));
 
@@ -68,6 +78,7 @@ public class TicketController {
         return ResponseEntity.ok(tickets);
     }
 
+    // 🔸 Ticket per ID abrufen
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> getTicketById(@PathVariable Long id) {
@@ -75,23 +86,25 @@ public class TicketController {
         User user = userService.getUserByUsername(username);
 
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+                .orElseThrow(() -> new RuntimeException("Ticket nicht gefunden"));
 
         boolean isAdmin = user.getRoles().stream()
                 .anyMatch(role -> role.getName().name().equals("ROLE_ADMIN"));
 
+        // Wenn kein Admin und nicht der Ersteller → Zugriff verweigern
         if (!isAdmin && !ticket.getCreator().getId().equals(user.getId())) {
-            return ResponseEntity.status(403).body("Access denied");
+            return ResponseEntity.status(403).body("Zugriff verweigert");
         }
 
         return ResponseEntity.ok(ticket);
     }
 
+    // 🔸 Ticketstatus ändern (z. B. zu "CLOSED")
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> updateTicketStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+                .orElseThrow(() -> new RuntimeException("Ticket nicht gefunden"));
 
         try {
             TicketStatus newStatus = TicketStatus.valueOf(body.get("status"));
@@ -99,26 +112,30 @@ public class TicketController {
             ticketRepository.save(ticket);
             return ResponseEntity.ok(ticket);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid status value");
+            return ResponseEntity.badRequest().body("Ungültiger Statuswert");
         }
     }
 
+    // 🔸 Ticket bearbeiten (z. B. Titel, Beschreibung, Projekt, Admin)
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> updateTicket(@PathVariable Long id, @RequestBody CreateTicketRequest request) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket nicht gefunden"));
 
+        // Felder aktualisieren
         ticket.setTitle(request.getTitle());
         ticket.setDescription(request.getDescription());
         ticket.setStatus(request.getStatus());
 
+        // Admin zuweisen, wenn vorhanden
         if (request.getAssignedAdminId() != null) {
             User assignedAdmin = userRepository.findById(request.getAssignedAdminId())
                     .orElseThrow(() -> new RuntimeException("Admin nicht gefunden"));
             ticket.setAssignedAdmin(assignedAdmin);
         }
 
+        // Projekt aktualisieren, wenn vorhanden
         if (request.getProjectId() != null) {
             Project project = projectRepository.findById(request.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Projekt nicht gefunden"));
@@ -128,6 +145,7 @@ public class TicketController {
         return ResponseEntity.ok(ticketRepository.save(ticket));
     }
 
+    // 🔸 Ticket löschen (nur für Admins erlaubt)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteTicket(@PathVariable Long id) {
@@ -135,6 +153,7 @@ public class TicketController {
         return ResponseEntity.ok().build();
     }
 
+    // 🔸 Admin zu Ticket zuweisen (nur für Admins)
     @PutMapping("/{id}/assign")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> assignUserToTicket(@PathVariable Long id, @RequestBody Map<String, Long> body) {

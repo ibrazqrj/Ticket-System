@@ -3,12 +3,13 @@ import TicketService from "../services/ticket.service";
 import AuthService from "../services/auth.service";
 import { Link } from "react-router-dom";
 
+// Liste aller Tickets anzeigen
 function TicketList() {
-  const [tickets, setTickets] = useState([]);
-  const [error, setError] = useState("");
+  const [tickets, setTickets] = useState([]); // Tickets vom Server
+  const [error, setError] = useState(""); // Fehleranzeige
 
-  const currentUser = AuthService.getCurrentUser();
-  const isAdmin = currentUser?.roles?.includes("ADMIN");
+  const currentUser = AuthService.getCurrentUser(); // Aktuell eingeloggter Benutzer
+  const isAdmin = currentUser?.roles?.includes("ADMIN"); // Ist der Benutzer ein Admin?
 
   useEffect(() => {
     TicketService.getAllTickets()
@@ -37,13 +38,13 @@ function TicketList() {
             const canEdit = isAdmin || (isOwner && ticket.status === "OPEN");
 
             return (
-                
               <tr key={ticket.id}>
                 <td>{ticket.title}</td>
                 <td>{ticket.project?.name}</td>
                 <td>{ticket.status}</td>
                 <td>{ticket.creator?.username}</td>
                 <td>
+                  {/* Ticket bearbeiten/löschen, wenn erlaubt */}
                   {canEdit && (
                     <>
                       <Link to={`/tickets/edit/${ticket.id}`}>
@@ -51,15 +52,9 @@ function TicketList() {
                       </Link>
                       <button
                         onClick={() => {
-                          if (
-                            window.confirm(
-                              "Möchtest du dieses Ticket wirklich löschen?"
-                            )
-                          ) {
+                          if (window.confirm("Möchtest du dieses Ticket wirklich löschen?")) {
                             TicketService.deleteTicket(ticket.id).then(() =>
-                              setTickets(
-                                tickets.filter((t) => t.id !== ticket.id)
-                              )
+                              setTickets(tickets.filter((t) => t.id !== ticket.id))
                             );
                           }
                         }}
@@ -68,15 +63,15 @@ function TicketList() {
                       </button>
                     </>
                   )}
+
+                  {/* Ticket schließen, wenn offen */}
                   {ticket.status === "OPEN" && (
                     <button
                       onClick={() =>
                         TicketService.closeTicket(ticket.id).then(() =>
                           setTickets(
                             tickets.map((t) =>
-                              t.id === ticket.id
-                                ? { ...t, status: "CLOSED" }
-                                : t
+                              t.id === ticket.id ? { ...t, status: "CLOSED" } : t
                             )
                           )
                         )

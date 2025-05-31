@@ -2,31 +2,36 @@ import React, { useEffect, useState } from "react";
 import ProjectService from "../services/project.service";
 import { Link } from "react-router-dom";
 
+// Zeigt alle Projekte und erlaubt das Erstellen & Löschen
 export default function Projects() {
-  const [projects, setProjects] = useState([]);
-  const [error, setError] = useState("");
-  const [newProject, setNewProject] = useState({ name: "", description: "" });
+  const [projects, setProjects] = useState([]); // Liste aller Projekte
+  const [error, setError] = useState(""); // Fehlertext
+  const [newProject, setNewProject] = useState({ name: "", description: "" }); // Neues Projekt
 
+  // Lade alle Projekte beim Laden der Seite
   useEffect(() => {
     loadProjects();
   }, []);
 
+  // Hilfsfunktion: Projekte vom Server holen
   const loadProjects = () => {
     ProjectService.getAllProjects()
       .then((res) => setProjects(res.data))
       .catch(() => setError("Projekte konnten nicht geladen werden."));
   };
 
+  // Neues Projekt absenden
   const handleCreate = (e) => {
     e.preventDefault();
     ProjectService.createProject(newProject)
       .then(() => {
-        setNewProject({ name: "", description: "" });
-        loadProjects();
+        setNewProject({ name: "", description: "" }); // Formular zurücksetzen
+        loadProjects(); // Projekte neu laden
       })
       .catch(() => setError("Projekt konnte nicht erstellt werden."));
   };
 
+  // Projekt löschen (mit Sicherheitsabfrage)
   const handleDelete = (id) => {
     if (window.confirm("Projekt wirklich löschen?")) {
       ProjectService.deleteProject(id)
@@ -40,6 +45,7 @@ export default function Projects() {
       <h2>Projekte</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
+      {/* Formular zur Erstellung eines Projekts */}
       <form onSubmit={handleCreate}>
         <input
           placeholder="Projektname"
@@ -50,11 +56,14 @@ export default function Projects() {
         <input
           placeholder="Beschreibung"
           value={newProject.description}
-          onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+          onChange={(e) =>
+            setNewProject({ ...newProject, description: e.target.value })
+          }
         />
         <button type="submit">Projekt erstellen</button>
       </form>
 
+      {/* Tabelle mit bestehenden Projekten */}
       <table>
         <thead>
           <tr>

@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/projects";
 
+// Holt alle Projekte
 const getAllProjects = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   return axios.get(API_URL, {
@@ -11,6 +12,7 @@ const getAllProjects = () => {
   });
 };
 
+// Erstellt ein neues Projekt
 const createProject = (projectData) => {
   const user = JSON.parse(localStorage.getItem("user"));
   return axios.post(API_URL, projectData, {
@@ -20,6 +22,7 @@ const createProject = (projectData) => {
   });
 };
 
+// Löscht ein Projekt
 const deleteProject = (id) => {
   const user = JSON.parse(localStorage.getItem("user"));
   return axios.delete(`${API_URL}/${id}`, {
@@ -29,6 +32,7 @@ const deleteProject = (id) => {
   });
 };
 
+// Export der Projektfunktionen
 const ProjectService = {
   getAllProjects,
   createProject,

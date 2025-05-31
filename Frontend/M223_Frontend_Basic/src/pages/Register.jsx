@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AuthService from "../services/auth.service";
 import "../styles/Form.css";
 
+// Registrierungsformular für neue Benutzer
 function Register() {
   const [formData, setFormData] = useState({
     username: "",
@@ -10,12 +11,13 @@ function Register() {
     password: "",
   });
 
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [error, setError] = useState(""); // Fehlermeldung
+  const navigate = useNavigate(); // Weiterleitung nach Erfolg
 
+  // Eingaben überprüfen (einfache Validierung)
   const validate = () => {
     const { username, password } = formData;
-    const specialCharPattern = /[^A-Za-z0-9]/;
+    const specialCharPattern = /[^A-Za-z0-9]/; // prüft auf Sonderzeichen
 
     if (username.length < 3 || username.length > 50) {
       return "Benutzername muss zwischen 3 und 50 Zeichen lang sein.";
@@ -32,12 +34,15 @@ function Register() {
     return "";
   };
 
+  // Eingaben merken, wenn sich etwas ändert
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Formular absenden
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const validationError = validate();
     if (validationError) {
       setError(validationError);
@@ -50,9 +55,9 @@ function Register() {
         formData.email,
         formData.password
       );
-      navigate("/login"); // oder automatisch einloggen
+      navigate("/login"); // Weiterleitung zum Login
     } catch (err) {
-      setError("Registrierung fehlgeschlagen. Benutzername oder Email bereits vergeben?");
+      setError("Registrierung fehlgeschlagen. Benutzername oder E-Mail vergeben?");
     }
   };
 
