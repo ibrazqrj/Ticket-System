@@ -3,7 +3,6 @@ package ch.wiss.m223.Ticketsystem.Model;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
@@ -13,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,12 +34,12 @@ public class User {
     @NotBlank
     private String email;
 
-    @OneToMany(mappedBy = "creator")
-    @JsonManagedReference
-    private Set<Ticket> createdTickets = new HashSet<>();
+    // @OneToMany(mappedBy = "creator")
+    // @JsonManagedReference
+    // private Set<Ticket> createdTickets = new HashSet<>();
 
-    @OneToMany(mappedBy = "assignedAdmin")
-    private Set<Ticket> assignedTickets = new HashSet<>();
+    // @OneToMany(mappedBy = "assignedAdmin")
+    // private Set<Ticket> assignedTickets = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
         @JoinTable(
@@ -49,7 +47,7 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "project_id")
     )
-
+    @JsonManagedReference
     private Set<Project> projects = new HashSet<>();
 
     public User(String username, String password, String email, Set<Role> roles) {

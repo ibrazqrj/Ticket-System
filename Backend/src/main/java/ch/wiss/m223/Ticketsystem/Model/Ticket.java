@@ -1,6 +1,5 @@
 package ch.wiss.m223.Ticketsystem.Model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -33,8 +32,6 @@ public class Ticket {
     private TicketStatus status = TicketStatus.OPEN;
 
     @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = "creator_id")
     private User creator;
 
     @ManyToOne

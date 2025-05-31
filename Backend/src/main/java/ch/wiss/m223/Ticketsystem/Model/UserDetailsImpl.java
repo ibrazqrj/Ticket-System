@@ -16,8 +16,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class UserDetailsImpl implements UserDetails {
-    private static final long seriavlVersionUID = 1L;
-
     private Long id;
     private String username;
     private String email;

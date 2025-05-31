@@ -1,29 +1,45 @@
-import Layout from './modules/Layout'
-import Home from './modules/Home'
-import About from './modules/About'
-import NoPage from './modules/NoPage'
-import Public from './modules/Public'
-import Private from './modules/Private'
-import Login from './modules/Login'
-import { Routes } from 'react-router-dom'
-import { Route } from 'react-router-dom'
-import AuthService from './services/auth.service'
-import './App.css'
+import { Routes, Route, Navigate } from "react-router-dom";
+import Layout from "./modules/Layout";
+import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import Tickets from "./pages/Tickets";
+import Login from "./modules/Login";
+import NoPage from "./modules/NoPage";
+import PrivateRoute from "./components/PrivateRoute";
+import AuthService from "./services/auth.service";
+import Register from "./pages/Register";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="about" element={<About />} />
-        <Route path="public" element={<Public />} />
-        <Route path="private" element={<Private />} />
-        <Route path="login" element={<Login />} onLogin={AuthService.login} />
-        <Route path="*" element={<NoPage />} />
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Layout />
+          </PrivateRoute>
+        }
+      >
+        <Route
+          index
+          element={
+            AuthService.getCurrentUser() ? (
+              <Navigate to="/dashboard" />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="projects" element={<Projects />} />
+        <Route path="tickets" element={<Tickets />} />
       </Route>
-    </Routes>
-  )
 
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="*" element={<NoPage />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;

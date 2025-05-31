@@ -31,13 +31,17 @@ public class ProjectController {
         Project project = new Project();
         project.setName(request.getName());
         project.setDescription(request.getDescription());
-        // Set<User> users = new HashSet<>();
-        // for (Long userId : request.getUserIds()) {
-        //     User user = userRepository.findById(userId)
-        //         .orElseThrow(() -> new RuntimeException("User not found"));
-        //     users.add(user);
-        // }
-        // project.setUsers(users); 
+        Set<User> users = new HashSet<>();
+        for (Long userId : request.getUserIds()) {
+            User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            users.add(user);
+        }
+        project.setUsers(users); 
+
+        for (User user : users) {
+            user.getProjects().add(project);
+        }
 
         return ResponseEntity.ok(projectRepository.save(project));
     }
@@ -67,8 +71,8 @@ public class ProjectController {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByUsername(username);
 
-        boolean isAdmin = user.getRoles().stream()
-            .anyMatch(role -> role.getName().name().equals("ROLE_ADMIN"));
+        // boolean isAdmin = user.getRoles().stream()
+        //     .anyMatch(role -> role.getName().name().equals("ROLE_ADMIN"));
 
         // if (!isAdmin && !project.getUsers().contains(user)) {
         //     return ResponseEntity.status(403).body("Kein Zugriff auf dieses Projekt");

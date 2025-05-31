@@ -1,0 +1,41 @@
+.sidebar {
+  width: 200px;
+  background-color: #1f1f1f;
+  color: white;
+  padding: 20px;
+  height: 100vh;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 15px 0;
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.sidebar a:hover {
+  color: #61dafb;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+
+.username {
+  font-size: 0.9rem;
+  color: #ccc;
+  padding-top: 10px;
+}

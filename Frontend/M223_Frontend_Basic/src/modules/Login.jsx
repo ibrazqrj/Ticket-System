@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthService from "../services/auth.service.js";
 
 function Login() {
@@ -6,6 +7,9 @@ function Login() {
     username: "",
     password: "",
   });
+
+  const navigate = useNavigate();
+  // Initialisiert den State für die Eingaben
 
   // Speichert die Eingaben in den State
   const handleInputChange = (e) => {
@@ -16,16 +20,21 @@ function Login() {
   };
 
   // Behandelt das Formular-Submit
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    const { username, password } = entries;
+  const { username, password } = entries;
 
-    // Aufruf des Login-Services
-    const response = AuthService.login(username, password);
-
+  try {
+    const response = await AuthService.login(username, password);
     console.log("Login response:", response);
-  };
+
+    // Optional: Weiterleitung nach Login
+    window.location.href = "/dashboard";
+  } catch (error) {
+    console.error("Login fehlgeschlagen:", error);
+  }
+};
 
   return (
     <div className="login-container">
@@ -57,6 +66,9 @@ function Login() {
         </div>
 
         <button type="submit">Login</button>
+        <button type="button" onClick={() => navigate("/register")}>
+          Noch kein Konto? Jetzt registrieren
+        </button>
       </form>
     </div>
   );

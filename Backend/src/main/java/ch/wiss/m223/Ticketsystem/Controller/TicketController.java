@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,8 +25,8 @@ public class TicketController {
 
     @Autowired private TicketRepository ticketRepository;
     @Autowired private ProjectRepository projectRepository;
-    @Autowired private UserRepository userRepository;
     @Autowired private UserService userService;
+    @Autowired private UserRepository userRepository;
 
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -38,18 +37,11 @@ public class TicketController {
         Project project = projectRepository.findById(request.getProjectId())
             .orElseThrow(() -> new RuntimeException("Projekt nicht gefunden"));
 
-        User assignedAdmin = null;
-        if (request.getAssignedAdminId() != null) {
-            assignedAdmin = userRepository.findById(request.getAssignedAdminId())
-                .orElseThrow(() -> new RuntimeException("Admin nicht gefunden"));
-        }
-
         Ticket ticket = new Ticket();
         ticket.setTitle(request.getTitle());
         ticket.setDescription(request.getDescription());
         ticket.setCreator(creator);
         ticket.setProject(project);
-        ticket.setAssignedAdmin(assignedAdmin);
         ticket.setStatus(TicketStatus.OPEN);
 
         Ticket savedTicket = ticketRepository.save(ticket);
@@ -105,6 +97,31 @@ public class TicketController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid status value");
         }
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> updateTicket(@PathVariable Long id, @RequestBody CreateTicketRequest request) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket nicht gefunden"));
+
+        ticket.setTitle(request.getTitle());
+        ticket.setDescription(request.getDescription());
+        ticket.setStatus(request.getStatus());
+
+        if (request.getAssignedAdminId() != null) {
+            User assignedAdmin = userRepository.findById(request.getAssignedAdminId())
+                    .orElseThrow(() -> new RuntimeException("Admin nicht gefunden"));
+            ticket.setAssignedAdmin(assignedAdmin);
+        }
+
+        if (request.getProjectId() != null) {
+            Project project = projectRepository.findById(request.getProjectId())
+                    .orElseThrow(() -> new RuntimeException("Projekt nicht gefunden"));
+            ticket.setProject(project);
+        }
+
+        return ResponseEntity.ok(ticketRepository.save(ticket));
     }
 
     @DeleteMapping("/{id}")
